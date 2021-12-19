@@ -60,6 +60,7 @@ class VK_test:
     def get_all_photos(self):
         all_photos_url = self.vk_url_all + 'photos.getAll'
         params = self.get_params()
+        params['extended'] = '1'
         res = requests.get(all_photos_url, params)
         return(res.json())
     
@@ -80,7 +81,7 @@ if __name__ == '__main__':
 #   path_to_file = str(date.today()) + '_Photo'
 #   res1 = ya_disk.get_files_list()
 #   pprint(res1)
-  vk_photos = VK_test(vk_token)
+  vk_photos = VK_test(vk_token,'643851064')
   photos = vk_photos.get_all_photos()
   pprint(photos)
   user_name = vk_photos.user_name()
