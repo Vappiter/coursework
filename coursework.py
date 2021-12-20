@@ -52,7 +52,7 @@ class VK_test:
         
     def get_params(self):
         return {
-            'user_id':self.vk_id_user,
+            'owner_id':self.vk_id_user,
             'access_token':self.vk_token, 
             'v':'5.131'
         }
@@ -66,6 +66,7 @@ class VK_test:
     def user_name(self):
         user_url = self.vk_url_all + 'users.get'
         params = self.get_params()
+        params['user_id'] = self.vk_id_user
         res = requests.get(user_url, params)
         return(res.json())   
     
@@ -118,9 +119,9 @@ if __name__ == '__main__':
 #   path_to_file = str(date.today()) + '_Photo'
 #   res1 = ya_disk.get_files_list()
 #   pprint(res1)
-  vk_photos = VK_test(vk_token)
-  photos = vk_photos.get_all_photos()
-#   pprint(photos)
+  vk_photos = VK_test(vk_token, '2278872')
+  photos_vk = vk_photos.get_all_photos()
+  pprint(photos_vk)
   user_name = vk_photos.user_name()
   pprint(user_name)
   vk_photos.get_photos(12)
