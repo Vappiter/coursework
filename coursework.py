@@ -3,7 +3,6 @@ import requests
 from os import chdir
 from pprint import pprint
 
-
 class YaUploader:
     def __init__(self, ya_token: str):
         self.token = ya_token
@@ -69,7 +68,39 @@ class VK_test:
         params = self.get_params()
         res = requests.get(user_url, params)
         return(res.json())   
-        
+    
+    def get_photos(self, count_photos = 5):
+        all_photos_url = self.vk_url_all + 'photos.getAll'
+        params = self.get_params()
+        params['extended'] = '1'
+        res = (requests.get(all_photos_url, params)).json()
+        var1 = int(res['response']['count'])
+        if count_photos > var1:
+            pprint ('У пользователя нет столько фото')
+        else:
+            processing_photo(res, 1)    
+        return(res)    
+def processing_photo (res, application):
+    result = []
+    i1 = 0
+    if application == 1:
+     for var1, var2 in res.items():
+         for var3, var4 in var2.items():
+             if var3 == 'count':
+                 i1 = var4
+             else:
+                for i2 in range (0,i1): 
+                 for var5 in var4[i2].items():
+                   if var5[0] == 'sizes':
+                    for var6 in var5[1]:
+                        
+                      result.append(var6['height'])
+                      result.append(var6['width'])  
+                      pprint(result)
+            #  pprint (var4)
+     else:
+        return
+
 
 if __name__ == '__main__':
   chdir (r"Z:\2021-09-23_PYTHON\coursework")
@@ -83,7 +114,8 @@ if __name__ == '__main__':
 #   pprint(res1)
   vk_photos = VK_test(vk_token,'643851064')
   photos = vk_photos.get_all_photos()
-  pprint(photos)
+#   pprint(photos)
   user_name = vk_photos.user_name()
   pprint(user_name)
+  vk_photos.get_photos(7)
     
