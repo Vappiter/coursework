@@ -82,6 +82,7 @@ class VK_test:
         return(res)    
 def processing_photo (res, application):
     result = []
+    # photos = {'height': 0, 'width':0}
     i1 = 0
     if application == 1:
      for var1, var2 in res.items():
@@ -91,14 +92,19 @@ def processing_photo (res, application):
              else:
                 for i2 in range (0,i1): 
                  for var5 in var4[i2].items():
+                   if var5[0] == 'likes':
+                    photos['likes'] = var5[1]['count']     
                    if var5[0] == 'sizes':
+                    photos = {'height': 0, 'width':0, 'url':''}   
                     for var6 in var5[1]:
-                        
-                      result.append(var6['height'])
-                      result.append(var6['width'])  
-                      pprint(result)
+                      if photos ['height'] < var6['height'] and photos ['width'] < var6['width']:
+                       photos ['height'] = var6['height']
+                       photos ['width'] = var6['width']   
+                       photos ['url'] = var6['url']
+                    result.insert(i2,photos)  
+     pprint(result)
             #  pprint (var4)
-     else:
+    else:
         return
 
 
