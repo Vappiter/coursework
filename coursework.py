@@ -118,7 +118,7 @@ if __name__ == '__main__':
 #   path_to_file = str(date.today()) + '_Photo'
 #   res1 = ya_disk.get_files_list()
 #   pprint(res1)
-  vk_photos = VK_test(vk_token,'643851064')
+  vk_photos = VK_test(vk_token,'2278872')
   photos = vk_photos.get_all_photos()
 #   pprint(photos)
   user_name = vk_photos.user_name()
