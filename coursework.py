@@ -74,6 +74,7 @@ class VK_test:
         all_photos_url = self.vk_url_all + 'photos.getAll'
         params = self.get_params()
         params['extended'] = '1'
+        params['count'] = '113'
         res = (requests.get(all_photos_url, params)).json()
         var1 = int(res['response']['count'])
         if count_photos > var1:
@@ -84,12 +85,12 @@ class VK_test:
 def processing_photo (res, application):
     result = []
     # photos = {'height': 0, 'width':0}
-    i1 = 0
+    i1 = 113
     if application == 1:
      for var1, var2 in res.items():
          for var3, var4 in var2.items():
              if var3 == 'count':
-                 i1 = var4
+                 pass
              else:
                 for i2 in range (0,i1): 
                  for var5 in var4[i2].items():
