@@ -80,32 +80,24 @@ class VK_test:
         if count_photos > var1:
             pprint ('У пользователя нет столько фото')
         else:
-            processing_photo(res, 1)    
+            processing_photo(res, 1,count_photos)    
         return(res)    
-def processing_photo (res, application):
-    result = []
-    # photos = {'height': 0, 'width':0}
-    i1 = 113
+def processing_photo (res, application, count_photos):
+    result = [{'height':0, 'width':0, 'url': '', 'likes':0} for i in range(0, count_photos)]
     if application == 1:
-     for var1, var2 in res.items():
-         for var3, var4 in var2.items():
-             if var3 == 'count':
-                 pass
-             else:
-                for i2 in range (0,i1): 
-                 for var5 in var4[i2].items():
-                   if var5[0] == 'likes':
-                    photos['likes'] = var5[1]['count']     
-                   if var5[0] == 'sizes':
-                    photos = {'height': 0, 'width':0, 'url':''}   
-                    for var6 in var5[1]:
-                      if photos ['height'] < var6['height'] and photos ['width'] < var6['width']:
-                       photos ['height'] = var6['height']
-                       photos ['width'] = var6['width']   
-                       photos ['url'] = var6['url']
-                    result.insert(i2,photos)  
+     for var1 in res['response']['items']:
+       photo_info = {'height': 0, 'width':0, 'url':''}  
+       for i1 in range (0, count_photos):
+         if var1['likes']['count'] > result[i1]['likes']:
+          photo_info['likes'] = var1['likes']['count']
+          for var2 in var1['sizes']:
+             if photo_info ['height'] < var2['height'] and photo_info ['width'] < var2['width']:
+              photo_info ['height'] = var2['height']
+              photo_info ['width'] = var2['width']   
+              photo_info ['url'] = var2['url']   
+          result[i1] = photo_info
+          break  
      pprint(result)
-            #  pprint (var4)
     else:
         return
 
@@ -122,8 +114,8 @@ if __name__ == '__main__':
 #   pprint(res1)
   vk_photos = VK_test(vk_token, '2278872')
   photos_vk = vk_photos.get_all_photos()
-  pprint(photos_vk)
+#   pprint(photos_vk)
   user_name = vk_photos.user_name()
-  pprint(user_name)
-  vk_photos.get_photos(12)
+#   pprint(user_name)
+  vk_photos.get_photos()
     
