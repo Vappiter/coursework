@@ -3,6 +3,7 @@ import requests
 from os import chdir
 from pprint import pprint
 
+
 class YaUploader:
     def __init__(self, ya_token: str):
         self.token = ya_token
@@ -30,10 +31,10 @@ class YaUploader:
       pprint (res_upload_link.json())
       return res_upload_link.json()
         
-    def upload(self, file_path: str):
+    def upload(self, file_path: str,file_name):
     #   headers = self.get_header()
       href = self.get_upload_link(file_path=file_path).get("href","")
-      response = requests.put(href,data=open('file_test.txt','rb'))
+      response = requests.put(href,data=open(file_name,'rb'))
       pprint (response)
       """Метод загружает файлы по списку file_list на яндекс диск"""
           
@@ -42,7 +43,15 @@ class YaUploader:
       headers = self.get_header()
       res_files_link = requests.get(files_url,headers=headers)
       return res_files_link.json()
-
+  
+    def save_file_vk (self, file_path, res):
+      href = self.get_upload_link(file_path=file_path).get("href","")  
+      for var1 in res:
+          
+        response = requests.put(href,data=open(res['likes'] + '.jpg','rb'))     
+      pprint (res)
+      
+      
 class VK_test:
     def __init__(self, vk_token: str, vk_id_user = '1'):
         self.vk_token = vk_token
@@ -52,16 +61,17 @@ class VK_test:
         
     def get_params(self):
         return {
+            'access_token':self.vk_token,
             'owner_id':self.vk_id_user,
-            'access_token':self.vk_token, 
+            # 'user_id':self.vk_id_user,
             'v':'5.131'
         }
-    def get_all_photos(self):
-        all_photos_url = self.vk_url_all + 'photos.getAll'
-        params = self.get_params()
-        # params['extended'] = '1'
-        res = requests.get(all_photos_url, params)
-        return(res.json())
+    # def get_all_photos(self):
+    #     all_photos_url = self.vk_url_all + 'photos.getAll'
+    #     params = self.get_params()
+    #     # params['extended'] = '1'
+    #     res = requests.get(all_photos_url, params)
+    #     return(res.json())
     
     def user_name(self):
         user_url = self.vk_url_all + 'users.get'
@@ -76,12 +86,15 @@ class VK_test:
         params['extended'] = '1'
         params['count'] = '113'
         res = (requests.get(all_photos_url, params)).json()
-        var1 = int(res['response']['count'])
+        var1 = res['response']['count']
         if count_photos > var1:
             pprint ('У пользователя нет столько фото')
         else:
-            processing_photo(res, 1,count_photos)    
-        return(res)    
+            return(processing_photo(res, 1, count_photos))
+      
+        
+    
+        
 def processing_photo (res, application, count_photos):
     result = [{'height':0, 'width':0, 'url': '', 'likes':0} for i in range(0, count_photos)]
     if application == 1:
@@ -97,7 +110,7 @@ def processing_photo (res, application, count_photos):
               photo_info ['url'] = var2['url']   
           result[i1] = photo_info
           break  
-     pprint(result)
+     return result
     else:
         return
 
@@ -108,14 +121,14 @@ if __name__ == '__main__':
        ya_token = file_token.read()
   with open ('vk_token.txt', encoding='utf-8') as file_token:
        vk_token = file_token.read()
-#   ya_disk = YaUploader(ya_token)
-#   path_to_file = str(date.today()) + '_Photo'
-#   res1 = ya_disk.get_files_list()
+ya_disk = YaUploader(ya_token)
+path_to_file = str(date.today()) + '_Photo'
+res1 = ya_disk.get_files_list()
 #   pprint(res1)
-  vk_photos = VK_test(vk_token, '2278872')
-  photos_vk = vk_photos.get_all_photos()
+vk_photos = VK_test(vk_token, '2278872')
+# photos_vk = vk_photos.get_all_photos()
 #   pprint(photos_vk)
-  user_name = vk_photos.user_name()
-#   pprint(user_name)
-  vk_photos.get_photos()
+# user_name = vk_photos.user_name()
+# pprint(user_name)
+ya_disk.save_file_vk(path_to_file, vk_photos.get_photos())
     
