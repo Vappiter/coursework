@@ -1,6 +1,6 @@
 from datetime import date
 import requests
-from os import chdir
+import os
 from pprint import pprint
 
 
@@ -57,12 +57,10 @@ class YaUploader:
             href = (requests.get(upload_url, headers=headers, params=params)).json()
             # href = self.get_upload_link(file_path=file_path).get("href","")
             file_vk = requests.get(var1['url'], allow_redirects=True)
-            # fileopen (var1['url'],'rb')
-            # link_file_ya= open(var1['likes'] + '.jpg','wb')
-            # link_file_ya.write(link_file_vk.read())
-            # file_ya = open(str(var1['likes']) + '.jpg','wb').write(file_vk.content)
-            response = requests.put(href, open(
-                test1, 'wb').write(file_vk.content))
+            with open(test1,'wb') as file_ya:
+                file_ya.write(file_vk.content)
+            response = requests.put(href['href'], data=open(test1,'rb'))
+            os.remove (test1)
             print(response)
         pprint(res)
 
@@ -129,7 +127,7 @@ def processing_photo(res, application, count_photos):
 
 
 if __name__ == '__main__':
-    chdir(r"Z:\2021-09-23_PYTHON\coursework")
+    os.chdir(r"Z:\2021-09-23_PYTHON\coursework")
     with open('ya_token.txt', encoding='utf-8') as file_token:
         ya_token = file_token.read()
     with open('vk_token.txt', encoding='utf-8') as file_token:
