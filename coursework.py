@@ -18,6 +18,7 @@ class YaUploader:
     def get_header(self):
         return {
             'Content-type': 'application/json',
+            'Accept':'application/json',
             'Authorization': 'OAuth {}'.format(self.token)
         }
 
@@ -47,22 +48,15 @@ class YaUploader:
 
     def save_file_vk(self, file_path, res):
         self.add_catalog(file_path)
-        upload_url = self.files_url_all + '/upload'
+        upload_url = self.files_url_all + '/upload/'
         headers = self.get_header()
-        # href = self.get_upload_link(file_path=file_path).get("href","")
         for var1 in res:
             test1 = str(var1['likes']) + '.jpg'
             file_path_file = file_path + '/' + test1
-            params = {'path': file_path_file, 'overwrite': 'True'}
-            href = (requests.get(upload_url, headers=headers, params=params)).json()
-            # href = self.get_upload_link(file_path=file_path).get("href","")
-            file_vk = requests.get(var1['url'], allow_redirects=True)
-            with open(test1,'wb') as file_ya:
-                file_ya.write(file_vk.content)
-            response = requests.put(href['href'], data=open(test1,'rb'))
-            os.remove (test1)
+            params = {'path': file_path_file,'url':var1['url'], 'overwrite': 'True'}
+            response = requests.post(upload_url, headers=headers, params=params)
             print(response)
-        pprint(res)
+        # pprint(res)
 
 
 class VK_test:
@@ -136,7 +130,7 @@ ya_disk = YaUploader(ya_token)
 path_to_file = str(date.today()) + '_Photo'
 res1 = ya_disk.get_files_list()
 #   pprint(res1)
-vk_photos = VK_test(vk_token, '2278872')
+vk_photos = VK_test(vk_token, '10668318')
 # photos_vk = vk_photos.get_all_photos()
 #   pprint(photos_vk)
 # user_name = vk_photos.user_name()
