@@ -121,7 +121,7 @@ def processing_photo(res, application, count_photos):
 
 def enter_socnet():
   print('\n \n Программа позволяет делать backup файлов фотографий из различных соцсетей на различные диски\n')
-  print (os.getcwd())
+  print (os.path.split(__file__))
   count_attempt = 5
   var_socnet_input = ''
   while var_socnet_input != 'Q' and count_attempt > 0:
