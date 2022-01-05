@@ -119,20 +119,41 @@ def processing_photo(res, application, count_photos):
     else:
         return
 
+def enter_socnet():
+  print('Программа позволяет делать backup файлов фотографий из различных соцсетей на различные диски')
+  var_sn_input = input ('Выберите социальную сеть\n\
+  V - Вконтакте\n\
+  O - Одноклассники\n\
+  I - Инстаграмм\n').upper()
+  if var_sn_input == 'V':
+    pass
+  elif var_sn_input == 'O':
+    pass
+  elif var_sn_input == 'I':
+    pass
+  else:
+    print('Извините нажата неизвестная клавиша') 
 
 if __name__ == '__main__':
-    os.chdir(r"Z:\2021-09-23_PYTHON\coursework")
-    with open('ya_token.txt', encoding='utf-8') as file_token:
-        ya_token = file_token.read()
-    with open('vk_token.txt', encoding='utf-8') as file_token:
-        vk_token = file_token.read()
-ya_disk = YaUploader(ya_token)
-path_to_file = str(date.today()) + '_Photo'
-res1 = ya_disk.get_files_list()
-#   pprint(res1)
-vk_photos = VK_test(vk_token, '10668318')
-# photos_vk = vk_photos.get_all_photos()
-#   pprint(photos_vk)
-# user_name = vk_photos.user_name()
-# pprint(user_name)
-ya_disk.save_file_vk(path_to_file, vk_photos.get_photos())
+    ''' Общая функция '''
+    enter_socnet() 
+    
+
+
+
+
+    # os.chdir(r"Z:\2021-09-23_PYTHON\coursework")
+    # with open('ya_token.txt', encoding='utf-8') as file_token:
+    #     ya_token = file_token.read()
+    # with open('vk_token.txt', encoding='utf-8') as file_token:
+    #     vk_token = file_token.read()
+    # ya_disk = YaUploader(ya_token)
+    # path_to_file = str(date.today()) + '_Photo'
+    # res1 = ya_disk.get_files_list()
+    # #   pprint(res1)
+    # vk_photos = VK_test(vk_token, '10668318')
+    # # photos_vk = vk_photos.get_all_photos()
+    # #   pprint(photos_vk)
+    # # user_name = vk_photos.user_name()
+    # # pprint(user_name) 
+    # ya_disk.save_file_vk(path_to_file, vk_photos.get_photos())
