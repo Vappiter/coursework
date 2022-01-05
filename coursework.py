@@ -120,19 +120,36 @@ def processing_photo(res, application, count_photos):
         return
 
 def enter_socnet():
-  print('Программа позволяет делать backup файлов фотографий из различных соцсетей на различные диски')
-  var_sn_input = input ('Выберите социальную сеть\n\
-  V - Вконтакте\n\
-  O - Одноклассники\n\
-  I - Инстаграмм\n').upper()
-  if var_sn_input == 'V':
-    pass
-  elif var_sn_input == 'O':
-    pass
-  elif var_sn_input == 'I':
-    pass
-  else:
-    print('Извините нажата неизвестная клавиша') 
+  print('\n \n Программа позволяет делать backup файлов фотографий из различных соцсетей на различные диски\n')
+  print (os.getcwd())
+  count_attempt = 5
+  var_socnet_input = ''
+  while var_socnet_input != 'Q' and count_attempt > 0:
+    var_socnet_input = input ('Выберите социальную сеть\n\
+    V - Вконтакте\n\
+    O - Одноклассники\n\
+    I - Инстаграмм\n\
+    Q - Выход из программы\n').upper()
+    count_attempt -= 1 
+    if var_socnet_input == 'V':
+      pass
+    elif var_socnet_input == 'O':
+      pass
+    elif var_socnet_input == 'I':
+      pass
+    elif var_socnet_input == 'Q':
+      return None  
+    elif count_attempt == 1:
+      print('Извините нажата неизвестная клавиша\n\
+      осталась последняя попытка :(')
+    elif count_attempt == 0:   
+      print('До свидания!!!')
+      return None    
+    else:
+      print(f'Извините нажата неизвестная клавиша\n\
+      Осталось {count_attempt} попыток!!!')     
+      
+  
 
 if __name__ == '__main__':
     ''' Общая функция '''
