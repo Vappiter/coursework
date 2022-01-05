@@ -80,6 +80,9 @@ class VK_test:
     #     return(res.json())
 
     def user_name(self):
+        
+        ''' Возвращает по id Имя и Фамилию пользователя'''
+        
         user_url = self.vk_url_all + 'users.get'
         params = self.get_params()
         params['user_id'] = self.vk_id_user
@@ -87,10 +90,12 @@ class VK_test:
         return(res.json())
 
     def get_photos(self, count_photos=5):
+        
+        '''Возвращает подготовленный массив фотографий для сохранения на диск'''
+        
         all_photos_url = self.vk_url_all + 'photos.getAll'
         params = self.get_params()
         params['extended'] = '1'
-        params['count'] = '113'
         res = (requests.get(all_photos_url, params)).json()
         var1 = res['response']['count']
         if count_photos > var1:
@@ -100,6 +105,9 @@ class VK_test:
 
 
 def processing_photo(res, application, count_photos):
+    
+    '''Обрабатывает весь массив полученных фото согласно условий'''
+    
     result = [{'height': 0, 'width': 0, 'url': '', 'likes': 0}
               for i in range(0, count_photos)]
     if application == 1:
@@ -120,8 +128,10 @@ def processing_photo(res, application, count_photos):
         return
 
 def enter_socnet():
+    
+  ''' А планировалась только как функция ввода данных, а по факту получается еще и обработки ??? '''
+   
   print('\n \n Программа позволяет делать backup файлов фотографий из различных соцсетей на различные диски\n')
-  print (os.path.split(__file__))
   count_attempt = 5
   var_socnet_input = ''
   while var_socnet_input != 'Q' and count_attempt > 0:
@@ -132,7 +142,18 @@ def enter_socnet():
     Q - Выход из программы\n').upper()
     count_attempt -= 1 
     if var_socnet_input == 'V':
-      pass
+     with open('vk_token.txt', encoding='utf-8') as file_token:
+      vk_token = file_token.read()   
+     var_vk_number = input (f'\n Введите id пользователя у которого Вы хотите сохранить фотографии: \n\
+     (по умолчанию id = 1 - Павел Дуров) \n') 
+     if var_vk_number == '':
+      var_vk_number = 1
+     var_vk_photos_count  = input (f'\n Введите количество фотографий, которые необходимо сохранить: \n\
+     (по умолчанию будет сохраняться 5 фотографий) \n')
+     if var_vk_photos_count == '':
+      var_vk_photos_count = 5   
+     vk_photos = VK_test(vk_token, var_vk_number)
+     return vk_photos.get_photos(var_vk_photos_count)
     elif var_socnet_input == 'O':
       pass
     elif var_socnet_input == 'I':
@@ -141,21 +162,30 @@ def enter_socnet():
       return None  
     elif count_attempt == 1:
       print('Извините нажата неизвестная клавиша\n\
-      осталась последняя попытка :(')
+      осталась последняя попытка.  :(')
     elif count_attempt == 0:   
       print('До свидания!!!')
       return None    
     else:
       print(f'Извините нажата неизвестная клавиша\n\
-      Осталось {count_attempt} попыток!!!')     
+      Осталось {count_attempt} попыток! ;)')     
       
   
 
 if __name__ == '__main__':
-    ''' Общая функция '''
-    enter_socnet() 
     
-
+    ''' Общая функция '''
+    
+    file_path = (os.path.split(__file__)) # Считывает текущую директорию скрипта, тут же должны храниться файлы токенов
+    os.chdir(file_path [0]) # Устанавливает директорию
+    array_ptohos = enter_socnet() 
+    if array_ptohos != None:
+      with open('ya_token.txt', encoding='utf-8') as file_token:
+        ya_token = file_token.read()  
+        ya_disk = YaUploader(ya_token)
+        path_to_file = str(date.today()) + '_Photo'
+    # res1 = ya_disk.get_files_list()
+        ya_disk.save_file_vk(path_to_file, array_ptohos)
 
 
 
