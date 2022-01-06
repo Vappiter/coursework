@@ -2,6 +2,7 @@ from datetime import date
 import requests
 import os
 from pprint import pprint
+from tqdm import tqdm
 
 
 class YaUploader:
@@ -50,15 +51,12 @@ class YaUploader:
         self.add_catalog(file_path)
         upload_url = self.files_url_all + '/upload/'
         headers = self.get_header()
-        for var1 in res:
+        for var1 in tqdm(res):
             test1 = str(var1['likes']) + '.jpg'
             file_path_file = file_path + '/' + test1
             params = {'path': file_path_file,'url':var1['url'], 'overwrite': 'True'}
             response = requests.post(upload_url, headers=headers, params=params)
-            print(response)
-        # pprint(res)
-
-
+ 
 class VK_test:
     def __init__(self, vk_token: str, vk_id_user='1'):
         self.vk_token = vk_token
@@ -170,7 +168,43 @@ def enter_socnet():
       print(f'Извините нажата неизвестная клавиша\n\
       Осталось {count_attempt} попыток! ;)')     
       
-  
+def enter_disk(array_ptohos):
+    
+  ''' Выбор диска для сохранения '''
+   
+  print('\n \n Данные для сохранения на диск подготовлены, осталось выбрать диск\n')
+  count_attempt = 5
+  var_socnet_input = ''
+  while var_socnet_input != 'Q' and count_attempt > 0:
+    var_socnet_input = input ('Выберите диск\n\
+    Y - ЯндексДиск\n\
+    G - GoogleDrive\n\
+    M - OneDrive\n\
+    Q - Выход из программы\n').upper()
+    count_attempt -= 1 
+    if var_socnet_input == 'Y':
+     with open('ya_token.txt', encoding='utf-8') as file_token:
+        ya_token = file_token.read()  
+        ya_disk = YaUploader(ya_token)
+        path_to_file = str(date.today()) + '_Photo'
+    # res1 = ya_disk.get_files_list()
+        ya_disk.save_file_vk(path_to_file, array_ptohos)
+     return None   
+    elif var_socnet_input == 'G':
+      pass
+    elif var_socnet_input == 'M':
+      pass
+    elif var_socnet_input == 'Q':
+      return None  
+    elif count_attempt == 1:
+      print('Извините нажата неизвестная клавиша\n\
+      осталась последняя попытка.  :(')
+    elif count_attempt == 0:   
+      print('До свидания!!!')
+      return None    
+    else:
+      print(f'Извините нажата неизвестная клавиша\n\
+      Осталось {count_attempt} попыток! ;)')       
 
 if __name__ == '__main__':
     
@@ -180,12 +214,13 @@ if __name__ == '__main__':
     os.chdir(file_path [0]) # Устанавливает директорию
     array_ptohos = enter_socnet() 
     if array_ptohos != None:
-      with open('ya_token.txt', encoding='utf-8') as file_token:
-        ya_token = file_token.read()  
-        ya_disk = YaUploader(ya_token)
-        path_to_file = str(date.today()) + '_Photo'
-    # res1 = ya_disk.get_files_list()
-        ya_disk.save_file_vk(path_to_file, array_ptohos)
+     enter_disk(array_ptohos)   
+    #   with open('ya_token.txt', encoding='utf-8') as file_token:
+    #     ya_token = file_token.read()  
+    #     ya_disk = YaUploader(ya_token)
+    #     path_to_file = str(date.today()) + '_Photo'
+    # # res1 = ya_disk.get_files_list()
+    #     ya_disk.save_file_vk(path_to_file, array_ptohos)
 
 
 
