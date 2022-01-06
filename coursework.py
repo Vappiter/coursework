@@ -187,7 +187,6 @@ def enter_disk(array_ptohos):
         ya_token = file_token.read()  
         ya_disk = YaUploader(ya_token)
         path_to_file = str(date.today()) + '_Photo'
-    # res1 = ya_disk.get_files_list()
         ya_disk.save_file_vk(path_to_file, array_ptohos)
      return None   
     elif var_socnet_input == 'G':
@@ -215,20 +214,7 @@ if __name__ == '__main__':
     array_ptohos = enter_socnet() 
     if array_ptohos != None:
      enter_disk(array_ptohos)   
-    #   with open('ya_token.txt', encoding='utf-8') as file_token:
-    #     ya_token = file_token.read()  
-    #     ya_disk = YaUploader(ya_token)
-    #     path_to_file = str(date.today()) + '_Photo'
-    # # res1 = ya_disk.get_files_list()
-    #     ya_disk.save_file_vk(path_to_file, array_ptohos)
-
-
-
-    # os.chdir(r"Z:\2021-09-23_PYTHON\coursework")
-    # with open('ya_token.txt', encoding='utf-8') as file_token:
-    #     ya_token = file_token.read()
-    # with open('vk_token.txt', encoding='utf-8') as file_token:
-    #     vk_token = file_token.read()
+          
     # ya_disk = YaUploader(ya_token)
     # path_to_file = str(date.today()) + '_Photo'
     # res1 = ya_disk.get_files_list()
