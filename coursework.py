@@ -87,7 +87,7 @@ class VK_test:
         res = requests.get(user_url, params)
         return(res.json())
 
-    def get_photos(self, count_photos=5):
+    def get_photos_all(self, count_photos=5):
         
       '''Возвращает подготовленный массив фотографий для сохранения на диск'''
         
@@ -102,14 +102,15 @@ class VK_test:
           return(processing_photo(res, 1, count_photos))
 
     def get_album_user(self):
+      
+      ''' Возвращает массив альбомов пользователя, без wall and profile. Хочется понять почему? '''
+      
       album_url = self.vk_url_all + 'photos.getAlbums'
       params = self.get_params()
       res = (requests.get(album_url, params)).json()
       if res ['response']['count'] == 0:
         return 0
       else:
-        pprint (processing_album(res, 1))
-        input()
         return processing_album(res, 1)
 
 def processing_album(res, application):
@@ -147,11 +148,25 @@ def processing_photo(res, application, count_photos):
               photo_info['height'] = var2['height']
               photo_info['width'] = var2['width']
               photo_info['url'] = var2['url']
-              result[i1] = photo_info
-              break
+          result[i1] = photo_info
+          break
     return result
   else:
     return
+
+def choice_album (user_album):
+  
+  ''' Выбор альбома из которого будем сохранять фотографии '''
+  
+  len_users_album = len(user_album)
+  for i in range (0, len_users_album):
+    title_album = user_album[i]['title'] # Что-то напрямую f строка не берет ????
+    count_photos = user_album [i]['count_photos'] # Что-то напрямую f строка не берет ????
+    print(f'\n {i+1}. Название альбома: {title_album}, с нём содержиться {count_photos}')
+  i = int(input ('Введите номер альбома откуда будем сохранять фотографии:' ))  
+  print(user_album [i-1]['id'])
+  input()
+  return user_album [i-1]['id']
 
 def enter_socnet():
     
@@ -180,8 +195,13 @@ def enter_socnet():
       var_vk_photos_count = 5   
      vk_photos = VK_test(vk_token, var_vk_number)
      user_album = vk_photos.get_album_user()
+     if user_album == 0:
+      print ('У пользователя нет альбомов, только фото на стене и в профайле')
+     else:
+      choice_album(user_album)
+      input ()  
      pprint (user_album)
-     return vk_photos.get_photos(var_vk_photos_count)
+     return vk_photos.get_photos_all(var_vk_photos_count)
     elif var_socnet_input == 'O':
       pass
     elif var_socnet_input == 'I':
