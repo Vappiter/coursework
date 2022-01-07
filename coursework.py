@@ -89,41 +89,69 @@ class VK_test:
 
     def get_photos(self, count_photos=5):
         
-        '''Возвращает подготовленный массив фотографий для сохранения на диск'''
+      '''Возвращает подготовленный массив фотографий для сохранения на диск'''
         
-        all_photos_url = self.vk_url_all + 'photos.getAll'
-        params = self.get_params()
-        params['extended'] = '1'
-        res = (requests.get(all_photos_url, params)).json()
-        var1 = res['response']['count']
-        if count_photos > var1:
-            pprint('У пользователя нет столько фото')
-        else:
-            return(processing_photo(res, 1, count_photos))
+      all_photos_url = self.vk_url_all + 'photos.getAll'
+      params = self.get_params()
+      params['extended'] = '1'
+      res = (requests.get(all_photos_url, params)).json()
+      var1 = res['response']['count']
+      if count_photos > var1:
+        pprint('У пользователя нет столько фото')
+      else:
+          return(processing_photo(res, 1, count_photos))
 
+    def get_album_user(self):
+      album_url = self.vk_url_all + 'photos.getAlbums'
+      params = self.get_params()
+      res = (requests.get(album_url, params)).json()
+      if res ['response']['count'] == 0:
+        return 0
+      else:
+        pprint (processing_album(res, 1))
+        input()
+        return processing_album(res, 1)
+
+def processing_album(res, application):
+    
+  '''Обрабатываются имеющиеся альбомы пользователя'''
+    
+  count_albums = res ['response']['count']
+  result_album = [{'id': 0, 'title': '', 'count_photos': 0} for i in range(0, count_albums)]
+  if application == 1:
+    i = 0
+    for var1 in res['response']['items']:
+      album_info = {'id': 0, 'title': '', 'count_photos': 0} 
+      album_info['id'] = var1['id']
+      album_info['title'] = var1['title']
+      album_info['count_photos'] = var1['size']
+      result_album[i] = album_info
+      i += 1
+    return result_album
+  else:
+    return
 
 def processing_photo(res, application, count_photos):
     
-    '''Обрабатывает весь массив полученных фото согласно условий'''
+  '''Обрабатывает весь массив полученных фото согласно условий'''
     
-    result = [{'height': 0, 'width': 0, 'url': '', 'likes': 0}
-              for i in range(0, count_photos)]
-    if application == 1:
-        for var1 in res['response']['items']:
-            photo_info = {'height': 0, 'width': 0, 'url': ''}
-            for i1 in range(0, count_photos):
-                if var1['likes']['count'] > result[i1]['likes']:
-                    photo_info['likes'] = var1['likes']['count']
-                    for var2 in var1['sizes']:
-                        if photo_info['height'] < var2['height'] and photo_info['width'] < var2['width']:
-                            photo_info['height'] = var2['height']
-                            photo_info['width'] = var2['width']
-                            photo_info['url'] = var2['url']
-                    result[i1] = photo_info
-                    break
-        return result
-    else:
-        return
+  result = [{'height': 0, 'width': 0, 'url': '', 'likes': 0} for i in range(0, count_photos)]
+  if application == 1:
+    for var1 in res['response']['items']:
+      photo_info = {'height': 0, 'width': 0, 'url': ''}
+      for i1 in range(0, count_photos):
+        if var1['likes']['count'] > result[i1]['likes']:
+          photo_info['likes'] = var1['likes']['count']
+          for var2 in var1['sizes']:
+            if photo_info['height'] < var2['height'] and photo_info['width'] < var2['width']:
+              photo_info['height'] = var2['height']
+              photo_info['width'] = var2['width']
+              photo_info['url'] = var2['url']
+              result[i1] = photo_info
+              break
+    return result
+  else:
+    return
 
 def enter_socnet():
     
@@ -151,6 +179,8 @@ def enter_socnet():
      if var_vk_photos_count == '':
       var_vk_photos_count = 5   
      vk_photos = VK_test(vk_token, var_vk_number)
+     user_album = vk_photos.get_album_user()
+     pprint (user_album)
      return vk_photos.get_photos(var_vk_photos_count)
     elif var_socnet_input == 'O':
       pass
@@ -215,13 +245,4 @@ if __name__ == '__main__':
     if array_ptohos != None:
      enter_disk(array_ptohos)   
           
-    # ya_disk = YaUploader(ya_token)
-    # path_to_file = str(date.today()) + '_Photo'
-    # res1 = ya_disk.get_files_list()
-    # #   pprint(res1)
-    # vk_photos = VK_test(vk_token, '10668318')
-    # # photos_vk = vk_photos.get_all_photos()
-    # #   pprint(photos_vk)
-    # # user_name = vk_photos.user_name()
-    # # pprint(user_name) 
-    # ya_disk.save_file_vk(path_to_file, vk_photos.get_photos())
+
