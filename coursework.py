@@ -1,4 +1,5 @@
 from datetime import date
+import time
 import requests
 import os
 from pprint import pprint
@@ -51,8 +52,15 @@ class YaUploader:
         self.add_catalog(file_path)
         upload_url = self.files_url_all + '/upload/'
         headers = self.get_header()
+        var2 = -1
         for var1 in tqdm(res):
-            test1 = str(var1['likes']) + '.jpg'
+            if var2 != var1['likes']:
+             test1 = str(var1['likes']) + '.jpg'
+             var2 = var1['likes']
+            else:
+              time1 = int(time.time())
+              test1 = str(var1['likes']) + '_' + str(time1) + '.jpg'
+              var2 = var1['likes']
             file_path_file = file_path + '/' + test1
             params = {'path': file_path_file,'url':var1['url'], 'overwrite': 'True'}
             response = requests.post(upload_url, headers=headers, params=params)
@@ -94,12 +102,24 @@ class VK_test:
       all_photos_url = self.vk_url_all + 'photos.getAll'
       params = self.get_params()
       params['extended'] = '1'
+      params['count'] = 200      
       res = (requests.get(all_photos_url, params)).json()
       var1 = res['response']['count']
       if count_photos > var1:
         pprint('У пользователя нет столько фото')
       else:
           return(processing_photo(res, 1, count_photos))
+
+    def get_photos_album(self, count_photos=5, id_album=0): # Разобраться, почему без определения по умолчанию не берет id_album
+        
+      '''Возвращает подготовленный массив фотографий для сохранения на диск из выбраного альбома'''
+        
+      all_photos_url = self.vk_url_all + 'photos.get'
+      params = self.get_params()
+      params['extended'] = '1'
+      params['album_id'] = id_album
+      res = (requests.get(all_photos_url, params)).json()
+      return(processing_photo(res, 1, count_photos))
 
     def get_album_user(self):
       
@@ -109,9 +129,9 @@ class VK_test:
       params = self.get_params()
       res = (requests.get(album_url, params)).json()
       if res ['response']['count'] == 0:
-        return 0
+       return 0
       else:
-        return processing_album(res, 1)
+       return processing_album(res, 1)
 
 def processing_album(res, application):
     
@@ -136,23 +156,23 @@ def processing_photo(res, application, count_photos):
     
   '''Обрабатывает весь массив полученных фото согласно условий'''
     
-  result = [{'height': 0, 'width': 0, 'url': '', 'likes': 0} for i in range(0, count_photos)]
+  result = [{'height':0, 'width':0, 'url':'', 'likes':-1} for i in range(0, count_photos)]
   if application == 1:
-    for var1 in res['response']['items']:
-      photo_info = {'height': 0, 'width': 0, 'url': ''}
-      for i1 in range(0, count_photos):
-        if var1['likes']['count'] > result[i1]['likes']:
-          photo_info['likes'] = var1['likes']['count']
-          for var2 in var1['sizes']:
-            if photo_info['height'] < var2['height'] and photo_info['width'] < var2['width']:
-              photo_info['height'] = var2['height']
-              photo_info['width'] = var2['width']
-              photo_info['url'] = var2['url']
-          result[i1] = photo_info
-          break
-    return result
+   for var1 in res['response']['items']:
+     photo_info = {'height':0, 'width':0, 'url':''}
+     for i1 in range(0, count_photos):
+       if var1['likes']['count'] > result[i1]['likes']:
+        photo_info['likes'] = var1['likes']['count']
+        for var2 in var1['sizes']:
+          if photo_info['height'] < var2['height'] and photo_info['width'] < var2['width']:
+           photo_info['height'] = var2['height']
+           photo_info['width'] = var2['width']
+           photo_info['url'] = var2['url']
+        result[i1] = photo_info
+        break
+   return result
   else:
-    return
+    return 0
 
 def choice_album (user_album):
   
@@ -164,8 +184,6 @@ def choice_album (user_album):
     count_photos = user_album [i]['count_photos'] # Что-то напрямую f строка не берет ????
     print(f'\n {i+1}. Название альбома: {title_album}, с нём содержиться {count_photos}')
   i = int(input ('Введите номер альбома откуда будем сохранять фотографии:' ))  
-  print(user_album [i-1]['id'])
-  input()
   return user_album [i-1]['id']
 
 def enter_socnet():
@@ -196,12 +214,13 @@ def enter_socnet():
      vk_photos = VK_test(vk_token, var_vk_number)
      user_album = vk_photos.get_album_user()
      if user_album == 0:
-      print ('У пользователя нет альбомов, только фото на стене и в профайле')
+      print (f'У пользователя нет альбомов, только фото на стене и в профайле \n\
+        Будем выбирать лучшие фотографии оттуда')
+      return vk_photos.get_photos_all(var_vk_photos_count)
      else:
-      choice_album(user_album)
-      input ()  
-     pprint (user_album)
-     return vk_photos.get_photos_all(var_vk_photos_count)
+      id_album = choice_album(user_album)
+      return vk_photos.get_photos_album(var_vk_photos_count, id_album) 
+        
     elif var_socnet_input == 'O':
       pass
     elif var_socnet_input == 'I':
@@ -261,8 +280,8 @@ if __name__ == '__main__':
     
     file_path = (os.path.split(__file__)) # Считывает текущую директорию скрипта, тут же должны храниться файлы токенов
     os.chdir(file_path [0]) # Устанавливает директорию
-    array_ptohos = enter_socnet() 
-    if array_ptohos != None:
-     enter_disk(array_ptohos)   
+    array_photos = enter_socnet() 
+    if array_photos != None:
+     enter_disk(array_photos)   
           
 
