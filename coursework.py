@@ -2,6 +2,7 @@ from datetime import date
 import time
 import requests
 import os
+import json
 from pprint import pprint
 from tqdm import tqdm
 
@@ -12,10 +13,23 @@ class YaUploader:
         self.files_url_all = 'https://cloud-api.yandex.net/v1/disk/resources'
 
     def add_catalog(self, file_path: str):
-        #   files_url = 'https://cloud-api.yandex.net/v1/disk/resources'
+      
+        ''' Проверяет, существует ли каталог, если нет, создает'''
+      
         headers = self.get_header()
-        return requests.put(f'{self.files_url_all}?path={file_path}', headers=headers)
+        res1=requests.get(f'{self.files_url_all}?path={file_path}', headers=headers)
+        if res1.status_code == 200:
+          print (f'Каталог уже существует')
+          return None
+        else:  
+          return requests.put(f'{self.files_url_all}?path={file_path}', headers=headers)
         #  res_files_link.status_code
+
+    def info_catalog(self, file_path: str): 
+      headers = self.get_header()
+      info_cat=requests.get(f'{self.files_url_all}?path={file_path}', headers=headers).json()
+      pprint (preparftion_exit_file(info_cat))
+      input()
 
     def get_header(self):
         return {
@@ -36,11 +50,13 @@ class YaUploader:
         return res_upload_link.json()
 
     def upload(self, file_path: str, file_name):
-        #   headers = self.get_header()
+      
+        """Метод загружает файлы по списку file_list на яндекс диск"""
+      
         href = self.get_upload_link(file_path=file_path).get("href", "")
         response = requests.put(href, data=open(file_name, 'rb'))
         pprint(response)
-        """Метод загружает файлы по списку file_list на яндекс диск"""
+                
 
     def get_files_list(self):
         files_url = self.files_url_all + '/files'
@@ -63,7 +79,8 @@ class YaUploader:
               var2 = var1['likes']
             file_path_file = file_path + '/' + test1
             params = {'path': file_path_file,'url':var1['url'], 'overwrite': 'True'}
-            response = requests.post(upload_url, headers=headers, params=params)
+            requests.post(upload_url, headers=headers, params=params)
+            # time.sleep(2)
  
 class VK_test:
     def __init__(self, vk_token: str, vk_id_user='1'):
@@ -75,19 +92,12 @@ class VK_test:
         return {
             'access_token': self.vk_token,
             'owner_id': self.vk_id_user,
-            # 'user_id':self.vk_id_user,
             'v': '5.131'
         }
-    # def get_all_photos(self):
-    #     all_photos_url = self.vk_url_all + 'photos.getAll'
-    #     params = self.get_params()
-    #     # params['extended'] = '1'
-    #     res = requests.get(all_photos_url, params)
-    #     return(res.json())
-
+    
     def user_name(self):
         
-        ''' Возвращает по id Имя и Фамилию пользователя'''
+        ''' Возвращает по id Имя и Фамилию пользователя. Нигде не используется, так может потом пригодится'''
         
         user_url = self.vk_url_all + 'users.get'
         params = self.get_params()
@@ -196,8 +206,8 @@ def enter_socnet():
   while var_socnet_input != 'Q' and count_attempt > 0:
     var_socnet_input = input ('Выберите социальную сеть\n\
     V - Вконтакте\n\
-    O - Одноклассники\n\
-    I - Инстаграмм\n\
+    O - Одноклассники (в разработке)\n\
+    I - Инстаграмм (в разработке)\n\
     Q - Выход из программы\n').upper()
     count_attempt -= 1 
     if var_socnet_input == 'V':
@@ -215,12 +225,11 @@ def enter_socnet():
      user_album = vk_photos.get_album_user()
      if user_album == 0:
       print (f'У пользователя нет альбомов, только фото на стене и в профайле \n\
-        Будем выбирать лучшие фотографии оттуда')
+        Будем выбирать лучшие фотографии оттуда :)')
       return vk_photos.get_photos_all(var_vk_photos_count)
      else:
       id_album = choice_album(user_album)
       return vk_photos.get_photos_album(var_vk_photos_count, id_album) 
-        
     elif var_socnet_input == 'O':
       pass
     elif var_socnet_input == 'I':
@@ -247,17 +256,22 @@ def enter_disk(array_ptohos):
   while var_socnet_input != 'Q' and count_attempt > 0:
     var_socnet_input = input ('Выберите диск\n\
     Y - ЯндексДиск\n\
-    G - GoogleDrive\n\
-    M - OneDrive\n\
+    G - GoogleDrive (в разработке)\n\
+    M - OneDrive (в разработке)\n\
     Q - Выход из программы\n').upper()
     count_attempt -= 1 
     if var_socnet_input == 'Y':
      with open('ya_token.txt', encoding='utf-8') as file_token:
         ya_token = file_token.read()  
-        ya_disk = YaUploader(ya_token)
-        path_to_file = str(date.today()) + '_Photo'
-        ya_disk.save_file_vk(path_to_file, array_ptohos)
-     return None   
+     ya_disk = YaUploader(ya_token)
+     path_to_file = str(date.today()) + '_Photo'
+     ya_disk.save_file_vk(path_to_file, array_ptohos)
+     print (f'\n Фотографии сохранены. Необходимо подготовить выходной файл\n\
+     \n НАЖМИТЕ КЛАВИШУ "ENTER"\n')
+     input()
+     time.sleep(3)
+     ya_disk.info_catalog(path_to_file)
+     return count_attempt
     elif var_socnet_input == 'G':
       pass
     elif var_socnet_input == 'M':
@@ -272,7 +286,22 @@ def enter_disk(array_ptohos):
       return None    
     else:
       print(f'Извините нажата неизвестная клавиша\n\
-      Осталось {count_attempt} попыток! ;)')       
+      Осталось {count_attempt} попыток! ;)')   
+      
+def preparftion_exit_file(info_cat):
+  count_photos_cat = info_cat ['_embedded']['total']
+  result_exit_file = [{'file_name': '', 'size': 0, } for i in range(0, count_photos_cat)]
+  i = 0
+  for var1 in info_cat['_embedded']['items']:
+    file_info = {'file_name': 0, 'size': ''} 
+    file_info['file_name'] = var1['name']
+    file_info['size'] = var1['size']
+    result_exit_file[i] = file_info
+    i += 1
+  with open('info_cat.txt', 'w') as file_wr: 
+    json.dump (result_exit_file, file_wr)
+  
+      
 
 if __name__ == '__main__':
     
@@ -282,6 +311,7 @@ if __name__ == '__main__':
     os.chdir(file_path [0]) # Устанавливает директорию
     array_photos = enter_socnet() 
     if array_photos != None:
-     enter_disk(array_photos)   
-          
+     answer = enter_disk(array_photos)   
+    if answer == None:
+      print(f'Фотографии сохранены. Продолжим?')      
 
