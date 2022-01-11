@@ -12,26 +12,19 @@ class YaUploader:
         self.token = ya_token
         self.files_url_all = 'https://cloud-api.yandex.net/v1/disk/resources'
 
-    def add_catalog(self, file_path: str):
-      
-        ''' Проверяет, существует ли каталог, если нет, создает'''
-      
-        headers = self.get_header()
-        res1=requests.get(f'{self.files_url_all}?path={file_path}', headers=headers)
-        if res1.status_code == 200:
-          print (f'Каталог уже существует')
-          return None
-        else:  
-          return requests.put(f'{self.files_url_all}?path={file_path}', headers=headers)
-        #  res_files_link.status_code
-
-    def info_catalog(self, file_path: str): 
+    def add_catalog(self, file_path: str): # Метод создания каталога на Яндекс Диске
+      headers = self.get_header() 
+      res1=requests.get(f'{self.files_url_all}?path={file_path}', headers=headers)
+      if res1.status_code == 200:
+        print (f'Каталог уже существует')
+      else:  
+        return requests.put(f'{self.files_url_all}?path={file_path}', headers=headers)
+        
+    def info_catalog(self, file_path: str): # Метод получения информации о имеющихся файлах в каталоге
       headers = self.get_header()
       info_cat=requests.get(f'{self.files_url_all}?path={file_path}', headers=headers).json()
-      pprint (preparftion_exit_file(info_cat))
-      input()
-
-    def get_header(self):
+     
+    def get_header(self): # Общий заголовок запросов к Яндекс Диску
         return {
             'Content-type': 'application/json',
             'Accept':'application/json',
@@ -49,20 +42,17 @@ class YaUploader:
         pprint(res_upload_link.json())
         return res_upload_link.json()
 
-    def upload(self, file_path: str, file_name):
-      
-        """Метод загружает файлы по списку file_list на яндекс диск"""
-      
-        href = self.get_upload_link(file_path=file_path).get("href", "")
-        response = requests.put(href, data=open(file_name, 'rb'))
-        pprint(response)
+    # def upload(self, file_path: str, file_name): # Метод загружает файлы по списку file_list на яндекс диск"""
+    #   href = self.get_upload_link(file_path=file_path).get("href", "")
+    #   response = requests.put(href, data=open(file_name, 'rb'))
+    #   pprint(response)
                 
 
-    def get_files_list(self):
-        files_url = self.files_url_all + '/files'
-        headers = self.get_header()
-        res_files_link = requests.get(files_url, headers=headers)
-        return res_files_link.json()
+    # def get_files_list(self):
+    #     files_url = self.files_url_all + '/files'
+    #     headers = self.get_header()
+    #     res_files_link = requests.get(files_url, headers=headers)
+    #     return res_files_link.json()
 
     def save_file_vk(self, file_path, res):
         self.add_catalog(file_path)
@@ -80,7 +70,6 @@ class YaUploader:
             file_path_file = file_path + '/' + test1
             params = {'path': file_path_file,'url':var1['url'], 'overwrite': 'True'}
             requests.post(upload_url, headers=headers, params=params)
-            # time.sleep(2)
  
 class VK_test:
     def __init__(self, vk_token: str, vk_id_user='1'):
@@ -95,15 +84,12 @@ class VK_test:
             'v': '5.131'
         }
     
-    def user_name(self):
-        
-        ''' Возвращает по id Имя и Фамилию пользователя. Нигде не используется, так может потом пригодится'''
-        
-        user_url = self.vk_url_all + 'users.get'
-        params = self.get_params()
-        params['user_id'] = self.vk_id_user
-        res = requests.get(user_url, params)
-        return(res.json())
+    def user_name(self): # Возвращает по id Имя и Фамилию пользователя. Нигде не используется, так может потом пригодится
+      user_url = self.vk_url_all + 'users.get'
+      params = self.get_params()
+      params['user_id'] = self.vk_id_user
+      res = requests.get(user_url, params)
+      return(res.json())
 
     def get_photos_all(self, count_photos=5):
         
@@ -231,17 +217,17 @@ def enter_socnet():
       id_album = choice_album(user_album)
       return vk_photos.get_photos_album(var_vk_photos_count, id_album) 
     elif var_socnet_input == 'O':
-      pass
+      return 'Q'
     elif var_socnet_input == 'I':
-      pass
+      return 'Q'
     elif var_socnet_input == 'Q':
-      return None  
+      return 'Q'  
     elif count_attempt == 1:
       print('Извините нажата неизвестная клавиша\n\
       осталась последняя попытка.  :(')
     elif count_attempt == 0:   
       print('До свидания!!!')
-      return None    
+      return 'Q'    
     else:
       print(f'Извините нажата неизвестная клавиша\n\
       Осталось {count_attempt} попыток! ;)')     
@@ -252,15 +238,15 @@ def enter_disk(array_ptohos):
    
   print('\n \n Данные для сохранения на диск подготовлены, осталось выбрать диск\n')
   count_attempt = 5
-  var_socnet_input = ''
-  while var_socnet_input != 'Q' and count_attempt > 0:
-    var_socnet_input = input ('Выберите диск\n\
+  var_disk_input = ''
+  while var_disk_input != 'Q' and count_attempt > 0:
+    var_disk_input = input ('Выберите диск\n\
     Y - ЯндексДиск\n\
     G - GoogleDrive (в разработке)\n\
     M - OneDrive (в разработке)\n\
     Q - Выход из программы\n').upper()
     count_attempt -= 1 
-    if var_socnet_input == 'Y':
+    if var_disk_input == 'Y':
      with open('ya_token.txt', encoding='utf-8') as file_token:
         ya_token = file_token.read()  
      ya_disk = YaUploader(ya_token)
@@ -269,21 +255,20 @@ def enter_disk(array_ptohos):
      print (f'\n Фотографии сохранены. Необходимо подготовить выходной файл\n\
      \n НАЖМИТЕ КЛАВИШУ "ENTER"\n')
      input()
-     time.sleep(3)
-     ya_disk.info_catalog(path_to_file)
-     return count_attempt
-    elif var_socnet_input == 'G':
-      pass
-    elif var_socnet_input == 'M':
-      pass
-    elif var_socnet_input == 'Q':
-      return None  
+     time.sleep(3) # Без этого не корректно отрабатывают следующие функции, не успевает обновить информацию
+     return preparftion_exit_file(ya_disk.info_catalog(path_to_file))
+    elif var_disk_input == 'G':
+      return 'Q'
+    elif var_disk_input == 'M':
+      return 'Q'
+    elif var_disk_input == 'Q':
+      return 'Q' 
     elif count_attempt == 1:
       print('Извините нажата неизвестная клавиша\n\
       осталась последняя попытка.  :(')
     elif count_attempt == 0:   
       print('До свидания!!!')
-      return None    
+      return 'Q'    
     else:
       print(f'Извините нажата неизвестная клавиша\n\
       Осталось {count_attempt} попыток! ;)')   
@@ -309,9 +294,16 @@ if __name__ == '__main__':
     
     file_path = (os.path.split(__file__)) # Считывает текущую директорию скрипта, тут же должны храниться файлы токенов
     os.chdir(file_path [0]) # Устанавливает директорию
-    array_photos = enter_socnet() 
-    if array_photos != None:
-     answer = enter_disk(array_photos)   
-    if answer == None:
-      print(f'Фотографии сохранены. Продолжим?')      
+    var_quit = ''
+    while var_quit != 'Q': 
+      array_photos = enter_socnet() 
+      if array_photos == 'Q':
+       quit()
+      else:
+        answer = enter_disk(array_photos)
+      if answer == 'Q':
+       quit()
+      else:  
+       print(f'Фотографии сохранены.\n') 
+      var_quit = input (f'\n Закончить работать - нажмите клавишу "q", для продолжения любую другую \n').upper()     
 
