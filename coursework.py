@@ -22,7 +22,7 @@ class YaUploader:
         
     def info_catalog(self, file_path: str): # Метод получения информации о имеющихся файлах в каталоге
       headers = self.get_header()
-      info_cat=requests.get(f'{self.files_url_all}?path={file_path}', headers=headers).json()
+      return requests.get(f'{self.files_url_all}?path={file_path}', headers=headers).json()
      
     def get_header(self): # Общий заголовок запросов к Яндекс Диску
         return {
@@ -72,15 +72,18 @@ class YaUploader:
             requests.post(upload_url, headers=headers, params=params)
  
 class VK_test:
-    def __init__(self, vk_token: str, vk_id_user='1'):
-        self.vk_token = vk_token
-        self.vk_id_user = vk_id_user
-        self.vk_url_all = 'https://api.vk.com/method/'
+    def __init__(self, vk_token: str):# Был ещё параметр vk_id_user='1', но если мы добавляем ещё и ФИО, он становиться не нужным
+      
+      ''' Определение. Не забыть что нужно во все методы добавить vk_id_user, так как можно ещё и ФИО вводить'''
+      
+      self.vk_token = vk_token
+      self.vk_id_user = 1 # Было self.vk_id_user = vk_id_user
+      self.vk_url_all = 'https://api.vk.com/method/'
 
     def get_params(self):
         return {
             'access_token': self.vk_token,
-            'owner_id': self.vk_id_user,
+            # 'owner_id': self.vk_id_user,
             'v': '5.131'
         }
     
@@ -90,6 +93,29 @@ class VK_test:
       params['user_id'] = self.vk_id_user
       res = requests.get(user_url, params)
       return(res.json())
+    
+    def find_user_id(self, user_name):# Возвращает список пользователей с введеными именем и фамилией
+      
+      ''' По введеному имени и фамилии возвращает user_id'''
+      
+      i = 1
+      result_id_user = [{'id': 0} for i in range(0, 5)]
+      user_url = self.vk_url_all + 'users.search'
+      params = self.get_params()
+      params['q'] = user_name
+      params['count'] = '5'
+      res = requests.get(user_url, params).json()
+      for var1 in res['response']['items']:
+        # for i in range (0, 5):
+          last_name = var1['last_name'] # Что-то напрямую f строка не берет ????
+          first_name = var1['first_name'] # Что-то напрямую f строка не берет ????
+          id_user =  var1['id'] # Что-то напрямую f строка не берет ????
+          result_id_user[i-1] = var1['id']
+          print(f'\n {i}. Имя пользователя: {last_name} {first_name}, id пользователя {id_user}')
+          i += 1
+      i = int(input ('Введите номер пользователя, фотографии которого будем сохранять:' ))  
+      self.vk_id_user = result_id_user[i-1] 
+      return
 
     def get_photos_all(self, count_photos=5):
         
@@ -114,6 +140,7 @@ class VK_test:
       params = self.get_params()
       params['extended'] = '1'
       params['album_id'] = id_album
+      params['owner_id'] = self.vk_id_user
       res = (requests.get(all_photos_url, params)).json()
       return self.processing_photo(res, count_photos)
 
@@ -123,6 +150,7 @@ class VK_test:
       
       album_url = self.vk_url_all + 'photos.getAlbums'
       params = self.get_params()
+      params['owner_id'] = self.vk_id_user
       res = (requests.get(album_url, params)).json()
       if res ['response']['count'] == 0:
        return 0
@@ -165,7 +193,6 @@ class VK_test:
            break
       return result
  
-
     def choice_album (self, user_album):
   
       ''' Выбор альбома из которого будем сохранять фотографии '''
@@ -175,7 +202,7 @@ class VK_test:
         title_album = user_album[i]['title'] # Что-то напрямую f строка не берет ????
         count_photos = user_album [i]['count_photos'] # Что-то напрямую f строка не берет ????
         print(f'\n {i+1}. Название альбома: {title_album}, с нём содержиться {count_photos}')
-      i = int(input ('Введите номер альбома откуда будем сохранять фотографии:' ))  
+      i = int(input ('Введите номер альбома откуда будем сохранять фотографии:' ))
       return user_album [i-1]['id']
 
 def processing_input_vk():
@@ -185,15 +212,26 @@ def processing_input_vk():
   var_vk_photos_count = 0
   with open('vk_token.txt', encoding='utf-8') as file_token:
     vk_token = file_token.read()   
-    var_vk_number = input(f'\n Введите id пользователя у которого Вы хотите сохранить фотографии: \n\
-    (по умолчанию id = 1 - Павел Дуров) \n') 
-  if var_vk_number == '':
-   var_vk_number = 1
+  # Новое, определение id по ФИО
+  vk_photos = VK_test(vk_token)
+  var_vk_input = input(f'\n Введите id пользователя или его имя и фамилию у которого Вы хотите сохранить фотографии: \n\
+  (по умолчанию id = 1 - Павел Дуров) \n') 
+  if var_vk_input == '':
+    var_vk_input = 1
+  elif var_vk_input.isdigit() != True:
+    var_vk_input = vk_photos.find_user_id(var_vk_input)
+  else:
+    vk_photos.vk_id_user = var_vk_input  
+  
+  #   var_vk_number = input(f'\n Введите id пользователя у которого Вы хотите сохранить фотографии: \n\
+  #   (по умолчанию id = 1 - Павел Дуров) \n') 
+  # if var_vk_number == '':
+  #  var_vk_number = 1
   var_vk_photos_count  = int(input (f'\n Введите количество фотографий, которые необходимо сохранить: \n\
   (по умолчанию будет сохраняться 5 фотографий) \n'))
   if var_vk_photos_count == '':
     var_vk_photos_count = 5   
-  vk_photos = VK_test(vk_token, var_vk_number)
+  # vk_photos = VK_test(vk_token) # Было  vk_photos = VK_test(vk_token, var_vk_number) Теперь раньше создаем экземпляр
   user_album = vk_photos.get_album_user()
   if user_album == 0:
     print (f'У пользователя нет альбомов, только фото на стене и в профайле \n\
