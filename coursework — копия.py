@@ -115,7 +115,7 @@ class VK_test:
       params['extended'] = '1'
       params['album_id'] = id_album
       res = (requests.get(all_photos_url, params)).json()
-      return self.processing_photo(res, count_photos)
+      return(self.processing_photo(res, count_photos))
 
     def get_album_user(self):
       
@@ -141,8 +141,8 @@ class VK_test:
         album_info['id'] = var1['id']
         album_info['title'] = var1['title']
         album_info['count_photos'] = var1['size']
-        result_album[i] = album_info
-        i += 1
+      result_album[i] = album_info
+      i += 1
       return result_album
   
 
@@ -178,31 +178,6 @@ class VK_test:
       i = int(input ('Введите номер альбома откуда будем сохранять фотографии:' ))  
       return user_album [i-1]['id']
 
-def processing_input_vk():
-  
-  ''' Обработка ввода для Вконтакте'''
-  
-  var_vk_photos_count = 0
-  with open('vk_token.txt', encoding='utf-8') as file_token:
-    vk_token = file_token.read()   
-    var_vk_number = input(f'\n Введите id пользователя у которого Вы хотите сохранить фотографии: \n\
-    (по умолчанию id = 1 - Павел Дуров) \n') 
-  if var_vk_number == '':
-   var_vk_number = 1
-  var_vk_photos_count  = int(input (f'\n Введите количество фотографий, которые необходимо сохранить: \n\
-  (по умолчанию будет сохраняться 5 фотографий) \n'))
-  if var_vk_photos_count == '':
-    var_vk_photos_count = 5   
-  vk_photos = VK_test(vk_token, var_vk_number)
-  user_album = vk_photos.get_album_user()
-  if user_album == 0:
-    print (f'У пользователя нет альбомов, только фото на стене и в профайле \n\
-  Будем выбирать лучшие фотографии оттуда :)')
-    return vk_photos.get_photos_all(var_vk_photos_count)
-  else:
-    id_album = vk_photos.choice_album(user_album)
-    return vk_photos.get_photos_album(var_vk_photos_count, id_album) 
-
 def enter_socnet():
     
   ''' А планировалась только как функция ввода данных, а по факту получается еще и обработки ??? '''
@@ -218,7 +193,25 @@ def enter_socnet():
     Q - Выход из программы\n').upper()
     count_attempt -= 1 
     if var_socnet_input == 'V':
-     return processing_input_vk()
+     with open('vk_token.txt', encoding='utf-8') as file_token:
+      vk_token = file_token.read()   
+     var_vk_number = input (f'\n Введите id пользователя у которого Вы хотите сохранить фотографии: \n\
+     (по умолчанию id = 1 - Павел Дуров) \n') 
+     if var_vk_number == '':
+      var_vk_number = 1
+     var_vk_photos_count  = input (f'\n Введите количество фотографий, которые необходимо сохранить: \n\
+     (по умолчанию будет сохраняться 5 фотографий) \n')
+     if var_vk_photos_count == '':
+      var_vk_photos_count = 5   
+     vk_photos = VK_test(vk_token, var_vk_number)
+     user_album = vk_photos.get_album_user()
+     if user_album == 0:
+      print (f'У пользователя нет альбомов, только фото на стене и в профайле \n\
+        Будем выбирать лучшие фотографии оттуда :)')
+      return vk_photos.get_photos_all(var_vk_photos_count)
+     else:
+      id_album = vk_photos.choice_album(user_album)
+      return vk_photos.get_photos_album(var_vk_photos_count, id_album) 
     elif var_socnet_input == 'O':
       return 'Q'
     elif var_socnet_input == 'I':
